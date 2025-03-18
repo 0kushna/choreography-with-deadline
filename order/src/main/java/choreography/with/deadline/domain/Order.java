@@ -28,8 +28,8 @@ public class Order  {
     private String status;
 
     @PrePersist
-    public void setStatus(){
-        setStatus("PENDING"); //FOCUS
+    public void onPrePersist(){
+        setStatus("PENDING");
     }
     
     @PostPersist
@@ -82,8 +82,7 @@ public class Order  {
             order.setStatus("REJECTED DUE TO DEADLINE");
             repository().save(order);
 
-            OrderRejected orderRejected = new OrderRejected(order);
-            orderRejected.publishAfterCommit();
+            new OrderRejected(order).publishAfterCommit();
          });
     }
 

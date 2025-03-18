@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import choreography.with.deadline.domain.*;
 
 @Service
+@EnableScheduling
 @Transactional
 public class PolicyHandler{
     @Autowired DeadlineRepository deadlineRepository;
@@ -37,7 +38,7 @@ public class PolicyHandler{
         Deadline.delete(event);       
     }
 
-    // @Scheduled(fixedRate = 5000) 간혹, Unexpected error occurred in scheduled task 오류 발생.. @Scheduled @Transactional 분리권고에 따라 DeadlineScheduler 추가 
+    @Scheduled(fixedRate = 5000) // 간혹, Unexpected error occurred in scheduled task 오류 발생.. @Scheduled @Transactional 분리권고에 따라 DeadlineScheduler 추가 
     public void checkDeadline(){
         Deadline.sendDeadlineEvents();
     }

@@ -12,7 +12,7 @@ import java.util.Date;
 @Data
 
 public class Deadline  {
-    static final int deadlineDurationInMS = 10 * 1000;  //FOCUS: 데드라인 10초
+    static final int DEADLINE_DURATION = 10 * 1000;  //FOCUS: 데드라인 10초
 
     @Id
     @GeneratedValue(strategy=GenerationType.AUTO)
@@ -31,7 +31,7 @@ public class Deadline  {
         deadline.setOrderId(orderCreated.getId());
         deadline.setStartedTime(new Date(orderCreated.getTimestamp()));
 
-        Date deadlineDate = new Date(deadline.getStartedTime().getTime() + deadlineDurationInMS);
+        Date deadlineDate = new Date(deadline.getStartedTime().getTime() + DEADLINE_DURATION);
         deadline.setDeadline(deadlineDate);
         
         repository().save(deadline);
@@ -45,12 +45,17 @@ public class Deadline  {
     }
     
     public static void sendDeadlineEvents(){
+        // 1. 모든 데드라인 레코드를 가져온다.
+        // 2. 현재 시간을 구한다.
+        // 3. 현재 시간과 데드라인 필드를 비교해서 시간이 지난 레코드가 있으면...
+        // 4. 그 레코드를 이용해서 DeadlineReached 이벤트를 만든다. 
+        // 5. 그 레코드를 삭제한다.
         repository().findAll().forEach(deadline ->{
             Date now = new Date();
             
-            if(now.after(deadline.getDeadline())){
-                repository().delete(deadline);   
+            if(now.after(deadline.getDeadline())){  
                 new DeadlineReached(deadline).publishAfterCommit();
+                repository().delete(deadline);
             }
         });
     }
